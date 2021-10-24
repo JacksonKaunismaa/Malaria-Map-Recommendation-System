@@ -16,8 +16,8 @@ LOAD_MIN = 0
 LOAD_MAX = 40
 num_points = 1000
 DEG_TO_KM = 111 # based on https://www.nhc.noaa.gov/gccalc.shtml
-KM_TO_HR = 60  # assume an average speed of 60 km/h
-TIME_PER_TEST = 1.0
+KM_TO_HR = 1/60  # assume an average speed of 60 km/h
+TIME_PER_TEST = 1.0 # number of hours to do one test
 
 class Hospital():
     def __init__(self, pos, name, cap, load, idx):
@@ -26,7 +26,7 @@ class Hospital():
         self.cap = cap  # the number of available microscopy kits (or technicians)
         self.idx = idx # so we can access it in the other variables
         self.load = load # the current number of tests to process
-        self.tests_per_hour = TIME_PER_TEST / cap #the amount of tests that can be done per hour
+        self.tests_per_hour = cap/TIME_PER_TEST #the amount of tests that can be done per hour
 
     def get_time_to_process(self, pos, amount):
         # very simple model that assumes no other tests will be coming in as yours is being transported to the hospital
@@ -62,7 +62,7 @@ for hospital in hospitals:
     key = f"{hospital[2], hospital[4]}"
     try:
         town_geocodes[key]
-        print(f"Found: ({key}: {town_geocodes[key]})")
+        #print(f"Found: ({key}: {town_geocodes[key]})")
     except KeyError:
         try:
             geocode = gn.geocode(f"{hospital[4]}, Nigeria")
@@ -105,23 +105,29 @@ def simple_recommendation():
     except:
         print("Town could not be found")
         return
+    if geocode is None:
+        print("Town could not be found")
+        return
     pos = extract_pos(geocode)
     number_tests = float(input("Enter the number of blood samples to be processed: "))
     best = np.inf
     best_hospital = None
     for hosp in idx_to_hospital.values():
         total_time = hosp.get_time_to_process(pos, number_tests)
+        #print(total_time, hosp)
         if total_time < best:
             best = total_time
             best_hospital = hosp
-    print(f"The best hospital to travel to is: {hosp}")
+    print(f"The best hospital to travel to is: {best_hospital}")
     print(f"The tests will take approximately {best} hours to process")
 
 loc_arr = np.array([extract_pos(geo) for geo in town_geocodes.values()])
 loc_mins, loc_maxs = np.min(loc_arr, axis=0), np.max(loc_arr, axis=0)
-#loc_grid = pos_to_idx(loc_arr, loc_mins, loc_maxs)
 idx_to_town = {i:k for i,k in enumerate(town_geocodes.keys())}
 idx_to_hospital = {i:Hospital(loc,name, rand_cap(), rand_load(), i)  for i,(loc,name) in enumerate(zip(loc_arr, town_geocodes.keys()))}
 
-simple_recommendation()
 
+for _ in range(10):
+    simple_recommendation()
+plt.scatter(loc_arr[:,0], loc_arr[:,1])
+plt.show()
