@@ -37,6 +37,9 @@ class Hospital():
         return travel_time*2 + wait_time + test_time  # this isnt actually the time to receive results, as that will be based on the speed of the mail
 
 
+    def get_travel_time(self, pos, amount):
+        return self.get_distance(pos)*KM_TO_HR
+
     def get_remaining(self):
         return self.cap-self.load
 
@@ -97,11 +100,24 @@ def rand_load():
 def extract_pos(geocode):
     return [float(geocode.raw["lat"]), float(geocode.raw["lng"])]
 
-def simple_recommendation():
+def simple_recommendation(pos, number_tests, basis):
     # A higher fidelity prototype would take into account more factors
+    best = np.inf
+    best_hospital = None
+    for hosp in idx_to_hospital.values():
+        total_time = basis(hosp, pos, number_tests)
+        #print(total_time, hosp)
+        if total_time < best:
+            best = total_time
+            best_hospital = hosp
+    print(f"\tThe best hospital to travel to is: {best_hospital}")
+    print(f"\tThe tests will take approximately {best_hospital.get_time_to_process(pos, number_tests)} hours to process")
+
+def get_request():
     town_name = input("Enter the name of your town: ")
     try:
         geocode = gn.geocode(f"{town_name}, Nigeria")
+        print(geocode)
     except:
         print("Town could not be found")
         return
@@ -110,16 +126,7 @@ def simple_recommendation():
         return
     pos = extract_pos(geocode)
     number_tests = float(input("Enter the number of blood samples to be processed: "))
-    best = np.inf
-    best_hospital = None
-    for hosp in idx_to_hospital.values():
-        total_time = hosp.get_time_to_process(pos, number_tests)
-        #print(total_time, hosp)
-        if total_time < best:
-            best = total_time
-            best_hospital = hosp
-    print(f"The best hospital to travel to is: {best_hospital}")
-    print(f"The tests will take approximately {best} hours to process")
+    return pos, number_tests
 
 loc_arr = np.array([extract_pos(geo) for geo in town_geocodes.values()])
 loc_mins, loc_maxs = np.min(loc_arr, axis=0), np.max(loc_arr, axis=0)
@@ -128,6 +135,12 @@ idx_to_hospital = {i:Hospital(loc,name, rand_cap(), rand_load(), i)  for i,(loc,
 
 
 for _ in range(10):
-    simple_recommendation()
+    reqs = get_request()
+    if reqs:
+        print("Load-adjusted system:")
+        simple_recommendation(*reqs, Hospital.get_time_to_process)
+        print("Reference system:")
+        simple_recommendation(*reqs, Hospital.get_travel_time)
+        print("\n")
 plt.scatter(loc_arr[:,0], loc_arr[:,1])
 plt.show()
