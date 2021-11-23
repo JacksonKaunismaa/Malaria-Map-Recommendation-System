@@ -24,6 +24,8 @@ TIME_PER_TEST = 1.0 # number of hours to do one test
 # Change 2
 # tesoijt
 # TEST
+# oiasjdioasjdoi 
+#aisdjaiosd aiosdj
 class Hospital():
     def __init__(self, pos, name, cap, load, idx):
         self.pos = pos  # GPS coordinates
