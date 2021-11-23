@@ -6,6 +6,8 @@ import os
 import time
 import matplotlib.pyplot as plt
 
+# test
+
 with open("username.txt", "r") as f:
     username = f.read()
 gn = geocoders.GeoNames(username=username)
