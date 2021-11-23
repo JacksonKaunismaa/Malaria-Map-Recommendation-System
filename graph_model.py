@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 with open("username.txt", "r") as f:
     username = f.read()
-#test
+#test things
 gn = geocoders.GeoNames(username=username)
 CAP_MIN = 5
 CAP_MAX = 10  # pretty much random, but if we had data on this it could be easily adjusted
@@ -35,7 +35,6 @@ class Hospital():
         wait_time = max(0, (self.load / self.tests_per_hour) - travel_time)
         test_time = amount / self.tests_per_hour
         return travel_time*2 + wait_time + test_time  # this isnt actually the time to receive results, as that will be based on the speed of the mail
-
 
     def get_travel_time(self, pos, amount):
         return self.get_distance(pos)*KM_TO_HR
@@ -134,13 +133,16 @@ idx_to_town = {i:k for i,k in enumerate(town_geocodes.keys())}
 idx_to_hospital = {i:Hospital(loc,name, rand_cap(), rand_load(), i)  for i,(loc,name) in enumerate(zip(loc_arr, town_geocodes.keys()))}
 
 
-for _ in range(10):
-    reqs = get_request()
-    if reqs:
-        print("Load-adjusted system:")
-        simple_recommendation(*reqs, Hospital.get_time_to_process)
-        print("Reference system:")
-        simple_recommendation(*reqs, Hospital.get_travel_time)
-        print("\n")
+#for _ in range(10):
+#    reqs = get_request()
+#    if reqs:
+#        print("Load-adjusted system:")
+#        simple_recommendation(*reqs, Hospital.get_time_to_process)
+#        print("Reference system:")
+#        simple_recommendation(*reqs, Hospital.get_travel_time)
+#        print("\n")
 plt.scatter(loc_arr[:,0], loc_arr[:,1])
+plt.title("Distribution of hospitals in Nigeria")
+plt.xlabel("Latitude")
+plt.ylabel("Longitude")
 plt.show()
