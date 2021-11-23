@@ -19,6 +19,7 @@ KM_TO_HR = 1/60  # assume an average speed of 60 km/h
 TIME_PER_TEST = 1.0 # number of hours to do one test
 
 # change
+# Change 2
 # TEST
 class Hospital():
     def __init__(self, pos, name, cap, load, idx):
