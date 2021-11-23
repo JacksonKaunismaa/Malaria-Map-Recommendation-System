@@ -25,6 +25,7 @@ TIME_PER_TEST = 1.0 # number of hours to do one test
 # tesoijt
 # TEST
 # oiasjdioasjdoi 
+# ooooooooooooooooooooooooooooo
 #aisdjaiosd aiosdj
 class Hospital():
     def __init__(self, pos, name, cap, load, idx):
