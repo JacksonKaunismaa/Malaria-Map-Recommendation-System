@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 with open("username.txt", "r") as f:
     username = f.read()
-
+#test
 gn = geocoders.GeoNames(username=username)
 CAP_MIN = 5
 CAP_MAX = 10  # pretty much random, but if we had data on this it could be easily adjusted
