@@ -5,7 +5,8 @@ import pickle
 import os
 import time
 import matplotlib.pyplot as plt
-
+from shapely.geometry import Point, LineString
+import geopandas as gpd
 
 with open("username.txt", "r") as f:
     username = f.read()
@@ -13,6 +14,7 @@ gn = geocoders.GeoNames(username=username)
 CAP_MIN = 5
 CAP_MAX = 10  # pretty much random, but if we had data on this it could be easily adjusted
 LOAD_MIN = 0
+
 LOAD_MAX = 40
 num_points = 1000
 DEG_TO_KM = 111 # based on https://www.nhc.noaa.gov/gccalc.shtml
@@ -141,8 +143,26 @@ idx_to_hospital = {i:Hospital(loc,name, rand_cap(), rand_load(), i)  for i,(loc,
 #        print("Reference system:")
 #        simple_recommendation(*reqs, Hospital.get_travel_time)
 #        print("\n")
-plt.scatter(loc_arr[:,0], loc_arr[:,1])
-plt.title("Distribution of hospitals in Nigeria")
-plt.xlabel("Latitude")
-plt.ylabel("Longitude")
+
+temp = dict()
+for i in idx_to_hospital.values():
+    temp[i.name] = (i.pos[1], i.pos[0])
+
+someGeom = [Point(i) for i in temp.values()]
+d = {'Cities':[city for city in temp.keys()], 'geometry': someGeom}
+
+cities_gdf = gpd.GeoDataFrame(d)
+#cities_gdf = plt.scatter(loc_arr[:,0], loc_arr[:,1])
+nigeria = gpd.read_file('map/nga_admbnda_adm0_osgof_20190417.shp')
+nigeria = nigeria.to_crs("EPSG:4326")
+ax = nigeria.plot(color =  '#e3bccf', edgecolor = 'blue')
+plt.rcParams['figure.figsize'] = [20,20]
+cities_gdf.plot(ax=ax, color = 'orange')
 plt.show()
+
+# africa_gdf = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+# africa_gdf = africa_gdf[africa_gdf['continent'] == 'Africa']
+# ax = africa_gdf.plot(color='#e3bccf', edgecolor='blue')
+# plt.rcParams['figure.figsize'] = [100,100]
+# cities_gdf.plot(ax=ax, color='orange')
+# plt.show()
